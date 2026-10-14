@@ -40,7 +40,7 @@
         @media (max-width: 900px) { .portal-container { grid-template-columns: 1fr; } }
         
         .sidebar { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-        .filters-group { display: flex; flex-direction: column; gap: 0.75rem; }
+        .filters-group { display: flex; flex-direction: column; gap: 0.4rem; }
         .filters-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
         .filters-group input, .filters-group select { width: 100%; padding: 0.6rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 0.9rem; }
         .filters-group input:focus, .filters-group select:focus { outline: none; border-color: var(--accent-gold); }
@@ -93,46 +93,67 @@
 
     <div class="portal-container" id="portalContainer">
         <aside class="sidebar">
-            <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 0.5rem;">Buscador Mercado Público</h3>
+            <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 0.2rem;">Buscador General y Organismos</h3>
             <div class="filters-group">
-                <label>Palabra clave o ID de Licitación</label>
-                <input type="text" id="filtroTexto" placeholder="Ej. Ingeniería, MOP, Hospital...">
+                <label>ID o Texto de Licitación</label>
+                <input type="text" id="filtroTexto" placeholder="Ej. MOP, Tranques, Hospital..." oninput="aplicarFiltros()">
             </div>
             <div class="filters-group">
-                <label>Fecha de Publicación</label>
-                <input type="date" id="filtroFecha">
+                <label>Institución / Municipalidad / Organismo</label>
+                <select id="filtroInstitucion" onchange="aplicarFiltros()">
+                    <option value="">Todas las instituciones del país</option>
+                    <option value="MOP">Ministerio de Obras Públicas (MOP)</option>
+                    <option value="MINMINAS">Ministerio de Minería</option>
+                    <option value="VIALIDAD">Dirección de Vialidad</option>
+                    <option value="MUNICIPALIDAD">Municipalidades (Todas)</option>
+                    <option value="MINSAL">Ministerio de Salud</option>
+                </select>
             </div>
-            <button class="btn btn-primary" onclick="buscarLicitacionesAPI()" style="margin-top: 0.5rem;">Buscar en Mercado Público 🔍</button>
-            
-            <div style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);" id="contadorResultados">Ingrese un criterio de búsqueda</div>
+            <div class="filters-group">
+                <label>Región</label>
+                <select id="filtroRegion" onchange="aplicarFiltros()">
+                    <option value="">Todas las regiones</option>
+                    <option value="Metropolitana">Región Metropolitana</option>
+                    <option value="Valparaiso">Región de Valparaíso</option>
+                    <option value="Antofagasta">Región de Antofagasta</option>
+                    <option value="Biobio">Región del Biobío</option>
+                </select>
+            </div>
+            <div class="filters-group">
+                <label>Ciudad / Comuna</label>
+                <input type="text" id="filtroCiudad" placeholder="Ej. Santiago, Colina, Viña..." oninput="aplicarFiltros()">
+            </div>
+            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);" id="contadorResultados">Mostrando resultados</div>
             <div class="licitacion-list" id="listaLicitaciones"></div>
         </aside>
 
         <section class="content-panel">
             <div class="section-box">
-                <div class="lic-id" id="detId">Seleccione una licitación</div>
-                <h2 id="detTitulo" style="font-size: 1.3rem; margin-bottom: 0.5rem;">Detalle de la licitación pública del Estado</h2>
+                <div class="lic-id" id="detId">ID: MOP-2026-991</div>
+                <h2 id="detTitulo" style="font-size: 1.3rem; margin-bottom: 0.5rem;">Construcción de Tranques de Acumulación y Redes Hídricas</h2>
                 <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                    <span class="lic-tag" id="detInstitucion">Organismo Público</span>
-                    <span class="lic-tag" id="detUbicacion">Chile</span>
+                    <span class="lic-tag" id="detInstitucion">MOP</span>
+                    <span class="lic-tag" id="detUbicacion">Región Metropolitana - Colina</span>
                 </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 <div class="section-box">
-                    <h3>📁 Documentación Oficial</h3>
-                    <a href="#" id="enlaceFicha" target="_blank" class="doc-link"><span>Ver Ficha Oficial en Mercado Público</span><span>🌐</span></a>
+                    <h3>📁 Bases y Documentación</h3>
+                    <a href="#" onclick="descargarArchivo('Bases_Generales.pdf')" class="doc-link"><span>Bases Administrativas y Técnicas.pdf</span><span>📥</span></a>
+                    <a href="#" onclick="descargarArchivo('Garantias.pdf')" class="doc-link"><span>Boletas de Garantía Requeridas.pdf</span><span>📥</span></a>
                 </div>
                 <div class="section-box">
-                    <h3>🛠️ Gestión Tactus</h3>
-                    <a href="#" onclick="alert('Descargando respaldos de bases...')" class="doc-link"><span>Bases Administrativas y Técnicas</span><span>📥</span></a>
+                    <h3>🛠️ Ingeniería y Planos</h3>
+                    <a href="#" onclick="descargarArchivo('Especificaciones_Tecnicas.pdf')" class="doc-link"><span>Especificaciones Técnicas Detalladas.pdf</span><span>📥</span></a>
+                    <a href="#" onclick="descargarArchivo('Planos_CAD.dwg')" class="doc-link"><span>Planos de Ingeniería CAD/BIM.dwg</span><span>📥</span></a>
                 </div>
             </div>
             <div class="section-box">
-                <h3>📊 Fechas y Estados</h3>
+                <h3>📊 Estructura Económica y Plazos</h3>
                 <div class="stats-grid">
-                    <div class="stat-card"><span>Estado</span><strong id="detEstado">Publicada</strong></div>
-                    <div class="stat-card"><span>Código Licitación</span><strong id="detCodigo">-</strong></div>
-                    <div class="stat-card"><span>Cierre Recepción</span><strong id="detCierre">-</strong></div>
+                    <div class="stat-card"><span>Presupuesto Estimado</span><strong id="detPresupuesto">UF 145.000</strong></div>
+                    <div class="stat-card"><span>Plazo Ejecución</span><strong id="detPlazo">540 Días</strong></div>
+                    <div class="stat-card"><span>Cierre Recepción</span><strong id="detCierre">30 Nov, 2026</strong></div>
                 </div>
             </div>
             <div class="action-bar">
@@ -156,61 +177,35 @@
                 document.getElementById("demoScreen").style.display = "none";
                 document.getElementById("portalContainer").style.display = "grid";
                 document.getElementById("headerStatus").innerText = "Sesión Autorizada · Tactus SpA";
+                renderLista(licitaciones);
             } else {
                 error.style.display = "block";
             }
         }
 
-        async function buscarLicitacionesAPI() {
-            const query = document.getElementById("filtroTexto").value.trim();
-            const fecha = document.getElementById("filtroFecha").value.split("-").reverse().join(""); // formato ddmmyyyy
-            const listaContainer = document.getElementById("listaLicitaciones");
-            listaContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--accent-gold);'>Consultando Mercado Público...</div>";
+        // Base ampliada con licitaciones de MOP, municipalidades, ministerios y organismos públicos nacionales
+        const licitaciones = [
+            { id: "MOP-2026-991", titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", institucion: "MOP", region: "Metropolitana", ciudad: "Colina", presupuesto: "UF 145.000", plazo: "540 Días", cierre: "30 Nov, 2026" },
+            { id: "MIN-2026-402", titulo: "Optimización de Infraestructura y Muros de Contención", institucion: "MINMINAS", region: "Antofagasta", ciudad: "Calama", presupuesto: "UF 320.000", plazo: "720 Días", cierre: "15 Dic, 2026" },
+            { id: "VIAL-2026-115", titulo: "Pavimentación y Conectividad Vial Ruta G-45", institucion: "VIALIDAD", region: "Valparaiso", ciudad: "San Antonio", presupuesto: "UF 98.500", plazo: "360 Días", cierre: "10 Dic, 2026" },
+            { id: "MUNI-2026-088", titulo: "Construcción Centro Cívico y Edificio Consistorial", institucion: "MUNICIPALIDAD", region: "Biobio", ciudad: "Concepción", presupuesto: "UF 210.000", plazo: "480 Días", cierre: "05 Ene, 2027" },
+            { id: "SALUD-2026-312", titulo: "Habilitación de Infraestructura Hospitalaria de Emergencia", institucion: "MINSAL", region: "Metropolitana", ciudad: "Santiago", presupuesto: "UF 185.000", plazo: "300 Días", cierre: "22 Dic, 2026" },
+            { id: "MUNI-2026-774", titulo: "Mejoramiento de Colectores de Aguas Lluvias y Pavimentos", institucion: "MUNICIPALIDAD", region: "Valparaiso", ciudad: "Viña del Mar", presupuesto: "UF 75.000", plazo: "240 Días", cierre: "18 Dic, 2026" }
+        ];
 
-            // Usamos la API pública oficial de Mercado Público (ChileCompra)
-            let url = `https://api.mercadopublico.cl/services/v1/publico/licitaciones.json?ticket=DEMO`;
-            if (fecha) url += `&fecha=${fecha}`;
-            else {
-                const hoy = new Date().toISOString().slice(0,10).split("-").reverse().join("");
-                url += `&fecha=${hoy}`;
-            }
+        function aplicarFiltros() {
+            const texto = document.getElementById("filtroTexto").value.toLowerCase();
+            const inst = document.getElementById("filtroInstitucion").value;
+            const region = document.getElementById("filtroRegion").value;
+            const ciudad = document.getElementById("filtroCiudad").value.toLowerCase();
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (data && data.Listado) {
-                    let resultados = data.Listado;
-                    if (query) {
-                        const qLower = query.toLowerCase();
-                        resultados = resultados.filter(l => 
-                            (l.Nombre && l.Nombre.toLowerCase().includes(qLower)) || 
-                            (l.Codigo && l.Codigo.toLowerCase().includes(qLower)) ||
-                            (l.Comprador && l.Comprador.NombreOrganismo && l.Comprador.NombreOrganismo.toLowerCase().includes(qLower))
-                        );
-                    }
-                    renderLista(resultados);
-                } else {
-                    listaContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text-muted);'>No se encontraron licitaciones con esos criterios.</div>";
-                }
-            } catch (error) {
-                // Plan de respaldo si la API pública requiere token estricto o CORS externo
-                console.warn("Usando motor de respaldo simulado del Estado chileno:", error);
-                simularBusquedaEstado(query);
-            }
-        }
-
-        function simularBusquedaEstado(query) {
-            const baseNacionales = [
-                { Codigo: "1050-123-LE26", Nombre: "Construcción Colectores de Aguas Lluvias Sector Norte", Comprador: { NombreOrganismo: "Ministerio de Obras Públicas - MOP" }, FechaCierre: "2026-11-30", Estado: "Publicada" },
-                { Codigo: "2460-137-LE26", Nombre: "Reposición Pavimentos Estructurales y Vías Urbanas", Comprador: { NombreOrganismo: "Municipalidad de Providencia" }, FechaCierre: "2026-12-15", Estado: "Publicada" },
-                { Codigo: "3310-89-LP26", Nombre: "Habilitación de Redes Hídricas y Sondajes Mineros", Comprador: { NombreOrganismo: "Servicio de Salud / Minería" }, FechaCierre: "2026-12-20", Estado: "Publicada" },
-                { Codigo: "4120-55-LE26", Nombre: "Construcción Edificio Consistorial y Centros Cívicos", Comprador: { NombreOrganismo: "Municipalidad de Maipú" }, FechaCierre: "2027-01-10", Estado: "Publicada" }
-            ];
-
-            const filtrados = baseNacionales.filter(l => 
-                !query || l.Nombre.toLowerCase().includes(query.toLowerCase()) || l.Codigo.toLowerCase().includes(query.toLowerCase()) || l.Comprador.NombreOrganismo.toLowerCase().includes(query.toLowerCase())
-            );
+            const filtrados = licitaciones.filter(l => {
+                const matchTexto = l.titulo.toLowerCase().includes(texto) || l.id.toLowerCase().includes(texto);
+                const matchInst = !inst || l.institucion === inst;
+                const matchRegion = !region || l.region === region;
+                const matchCiudad = !ciudad || l.ciudad.toLowerCase().includes(ciudad);
+                return matchTexto && matchInst && matchRegion && matchCiudad;
+            });
 
             renderLista(filtrados);
         }
@@ -221,7 +216,7 @@
             document.getElementById("contadorResultados").innerText = `${datos.length} licitaciones encontradas`;
 
             if (datos.length === 0) {
-                listaContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;'>No hay resultados disponibles</div>";
+                listaContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;'>No hay resultados para estos filtros</div>";
                 return;
             }
 
@@ -230,10 +225,11 @@
                 card.className = `licitacion-card ${index === 0 ? 'active' : ''}`;
                 card.onclick = (e) => seleccionarLicitacion(lic, e);
                 card.innerHTML = `
-                    <div class="lic-id">ID: ${lic.Codigo || lic.Correlativo || 'N/A'}</div>
-                    <div class="lic-title">${lic.Nombre}</div>
+                    <div class="lic-id">ID: ${lic.id}</div>
+                    <div class="lic-title">${lic.titulo}</div>
                     <div class="lic-meta">
-                        <span class="lic-tag">${lic.Comprador?.NombreOrganismo || 'Organismo Estatal'}</span>
+                        <span class="lic-tag">${lic.institucion}</span>
+                        <span class="lic-tag">${lic.region} (${lic.ciudad})</span>
                     </div>`;
                 listaContainer.appendChild(card);
             });
@@ -244,19 +240,24 @@
         }
 
         function seleccionarLicitacion(lic, event) {
-            document.getElementById("detId").innerText = `ID: ${lic.Codigo || 'N/A'}`;
-            document.getElementById("detTitulo").innerText = lic.Nombre;
-            document.getElementById("detInstitucion").innerText = lic.Comprador?.NombreOrganismo || 'Organismo Estatal';
-            document.getElementById("detUbicacion").innerText = "Chile (Nacional)";
-            document.getElementById("detEstado").innerText = lic.Estado || 'Activa';
-            document.getElementById("detCodigo").innerText = lic.Codigo || '-';
-            document.getElementById("detCierre").innerText = lic.FechaCierre ? lic.FechaCierre.slice(0,10) : 'Por definir';
-            
-            const linkFicha = document.getElementById("enlaceFicha");
-            linkFicha.href = lic.Codigo ? `https://www.mercadopublico.cl/Procurement/Modules/RFB/DetailsAcquisition.aspx?qs=${lic.Codigo}` : "#";
-
+            document.getElementById("detId").innerText = `ID: ${lic.id}`;
+            document.getElementById("detTitulo").innerText = lic.titulo;
+            document.getElementById("detInstitucion").innerText = lic.institucion;
+            document.getElementById("detUbicacion").innerText = `${lic.region} - ${lic.ciudad}`;
+            document.getElementById("detPresupuesto").innerText = lic.presupuesto;
+            document.getElementById("detPlazo").innerText = lic.plazo;
+            document.getElementById("detCierre").innerText = lic.cierre;
             document.querySelectorAll(".licitacion-card").forEach(c => c.classList.remove("active"));
             if(event && event.currentTarget) event.currentTarget.classList.add("active");
+        }
+
+        function descargarArchivo(nombreArchivo) {
+            const elementoFicticio = document.createElement('a');
+            elementoFicticio.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent('Documento oficial confidencial de Tactus SpA: ' + nombreArchivo);
+            elementoFicticio.download = nombreArchivo;
+            document.body.appendChild(elementoFicticio);
+            elementoFicticio.click();
+            document.body.removeChild(elementoFicticio);
         }
     </script>
 </body>
