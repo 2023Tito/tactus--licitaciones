@@ -36,17 +36,22 @@
         .btn-primary:hover { background-color: var(--accent-gold-hover); }
         .error-msg { color: #ef4444; font-size: 0.85rem; display: none; }
 
-        .portal-container { display: none; flex: 1; padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%; grid-template-columns: 350px 1fr; gap: 2rem; }
+        .portal-container { display: none; flex: 1; padding: 2rem; max-width: 1400px; margin: 0 auto; width: 100%; grid-template-columns: 380px 1fr; gap: 2rem; }
         @media (max-width: 900px) { .portal-container { grid-template-columns: 1fr; } }
         
         .sidebar { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
-        .search-box input { width: 100%; padding: 0.75rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); }
-        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 550px; }
+        .filters-group { display: flex; flex-direction: column; gap: 0.75rem; }
+        .filters-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .filters-group input, .filters-group select { width: 100%; padding: 0.6rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 0.9rem; }
+        .filters-group input:focus, .filters-group select:focus { outline: none; border-color: var(--accent-gold); }
+        
+        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 420px; margin-top: 0.5rem; }
         .licitacion-card { background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; cursor: pointer; transition: all 0.2s; }
         .licitacion-card:hover, .licitacion-card.active { border-color: var(--accent-gold); background-color: rgba(245, 158, 11, 0.05); }
         .lic-id { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 0.25rem; }
         .lic-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .lic-tag { font-size: 0.75rem; color: var(--text-muted); background: var(--border-color); padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-block; }
+        .lic-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .lic-tag { background: var(--border-color); padding: 0.2rem 0.5rem; border-radius: 4px; }
         
         .content-panel { display: flex; flex-direction: column; gap: 1.5rem; }
         .section-box { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; }
@@ -88,16 +93,47 @@
 
     <div class="portal-container" id="portalContainer">
         <aside class="sidebar">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Buscar licitación..." onkeyup="filtrarLicitaciones()">
+            <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 0.5rem;">Filtros de Búsqueda</h3>
+            <div class="filters-group">
+                <label>ID o Texto de Licitación</label>
+                <input type="text" id="filtroTexto" placeholder="Ej. MOP-2026 o Tranques" oninput="aplicarFiltros()">
             </div>
+            <div class="filters-group">
+                <label>Institución Pública</label>
+                <select id="filtroInstitucion" onchange="aplicarFiltros()">
+                    <option value="">Todas las instituciones</option>
+                    <option value="MOP">Ministerio de Obras Públicas (MOP)</option>
+                    <option value="MINMINAS">Ministerio de Minería</option>
+                    <option value="VIALIDAD">Dirección de Vialidad</option>
+                    <option value="MUNICIPALIDAD">Municipalidades</option>
+                </select>
+            </div>
+            <div class="filters-group">
+                <label>Región</label>
+                <select id="filtroRegion" onchange="aplicarFiltros()">
+                    <option value="">Todas las regiones</option>
+                    <option value="Metropolitana">Región Metropolitana</option>
+                    <option value="Valparaiso">Región de Valparaíso</option>
+                    <option value="Antofagasta">Región de Antofagasta</option>
+                    <option value="Biobio">Región del Biobío</option>
+                </select>
+            </div>
+            <div class="filters-group">
+                <label>Ciudad / Comuna</label>
+                <input type="text" id="filtroCiudad" placeholder="Ej. Santiago, Colina, Calama" oninput="aplicarFiltros()">
+            </div>
+            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);" id="contadorResultados">Mostrando todas</div>
             <div class="licitacion-list" id="listaLicitaciones"></div>
         </aside>
+
         <section class="content-panel">
             <div class="section-box">
                 <div class="lic-id" id="detId">ID: MOP-2026-991</div>
                 <h2 id="detTitulo" style="font-size: 1.3rem; margin-bottom: 0.5rem;">Construcción de Tranques de Acumulación y Redes Hídricas</h2>
-                <span class="lic-tag" id="detSector">Obras Hidráulicas</span>
+                <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                    <span class="lic-tag" id="detInstitucion">MOP</span>
+                    <span class="lic-tag" id="detUbicacion">Región Metropolitana - Colina</span>
+                </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 <div class="section-box">
@@ -131,7 +167,7 @@
     </footer>
 
     <script>
-        const CLAVE_SECRETA = "tactus2026"; // Puedes cambiar la contraseña aquí
+        const CLAVE_SECRETA = "tactus2026";
 
         function verificarClave() {
             const input = document.getElementById("claveAcceso").value;
@@ -140,46 +176,75 @@
                 document.getElementById("demoScreen").style.display = "none";
                 document.getElementById("portalContainer").style.display = "grid";
                 document.getElementById("headerStatus").innerText = "Sesión Autorizada · Tactus SpA";
-                renderLista();
+                renderLista(licitaciones);
             } else {
                 error.style.display = "block";
             }
         }
 
         const licitaciones = [
-            { id: "MOP-2026-991", titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", sector: "Obras Hidráulicas", presupuesto: "UF 145.000", plazo: "540 Días", cierre: "30 Nov, 2026" },
-            { id: "MIN-2026-402", titulo: "Optimización de Infraestructura y Muros de Contención", sector: "Gran Minería", presupuesto: "UF 320.000", plazo: "720 Días", cierre: "15 Dic, 2026" },
-            { id: "VIAL-2026-115", titulo: "Pavimentación y Conectividad Vial Ruta G-45", sector: "Vialidad y Pavimentos", presupuesto: "UF 98.500", plazo: "360 Días", cierre: "10 Dic, 2026" },
-            { id: "MUNI-2026-088", titulo: "Construcción Centro Cívico y Edificio Consistorial", sector: "Edificación Pública", presupuesto: "UF 210.000", plazo: "480 Días", cierre: "05 Ene, 2027" }
+            { id: "MOP-2026-991", titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", institucion: "MOP", region: "Metropolitana", ciudad: "Colina", presupuesto: "UF 145.000", plazo: "540 Días", cierre: "30 Nov, 2026" },
+            { id: "MIN-2026-402", titulo: "Optimización de Infraestructura y Muros de Contención", institucion: "MINMINAS", region: "Antofagasta", ciudad: "Calama", presupuesto: "UF 320.000", plazo: "720 Días", cierre: "15 Dic, 2026" },
+            { id: "VIAL-2026-115", titulo: "Pavimentación y Conectividad Vial Ruta G-45", institucion: "VIALIDAD", region: "Valparaiso", ciudad: "San Antonio", presupuesto: "UF 98.500", plazo: "360 Días", cierre: "10 Dic, 2026" },
+            { id: "MUNI-2026-088", titulo: "Construcción Centro Cívico y Edificio Consistorial", institucion: "MUNICIPALIDAD", region: "Biobio", ciudad: "Concepción", presupuesto: "UF 210.000", plazo: "480 Días", cierre: "05 Ene, 2027" }
         ];
 
-        function renderLista(filtro = "") {
+        function aplicarFiltros() {
+            const texto = document.getElementById("filtroTexto").value.toLowerCase();
+            const inst = document.getElementById("filtroInstitucion").value;
+            const region = document.getElementById("filtroRegion").value;
+            const ciudad = document.getElementById("filtroCiudad").value.toLowerCase();
+
+            const filtrados = licitaciones.filter(l => {
+                const matchTexto = l.titulo.toLowerCase().includes(texto) || l.id.toLowerCase().includes(texto);
+                const matchInst = !inst || l.institucion === inst;
+                const matchRegion = !region || l.region === region;
+                const matchCiudad = !ciudad || l.ciudad.toLowerCase().includes(ciudad);
+                return matchTexto && matchInst && matchRegion && matchCiudad;
+            });
+
+            renderLista(filtrados);
+        }
+
+        function renderLista(datos) {
             const listaContainer = document.getElementById("listaLicitaciones");
             listaContainer.innerHTML = "";
-            const filtrados = licitaciones.filter(l => l.titulo.toLowerCase().includes(filtro.toLowerCase()) || l.id.toLowerCase().includes(filtro.toLowerCase()));
-            
-            filtrados.forEach((lic, index) => {
+            document.getElementById("contadorResultados").innerText = `${datos.length} licitaciones encontradas`;
+
+            if (datos.length === 0) {
+                listaContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;'>No hay resultados para estos filtros</div>";
+                return;
+            }
+
+            datos.forEach((lic, index) => {
                 const card = document.createElement("div");
-                card.className = `licitacion-card ${index === 0 && !filtro ? 'active' : ''}`;
+                card.className = `licitacion-card ${index === 0 ? 'active' : ''}`;
                 card.onclick = (e) => seleccionarLicitacion(lic, e);
-                card.innerHTML = `<div class="lic-id">ID: ${lic.id}</div><div class="lic-title">${lic.titulo}</div><span class="lic-tag">${lic.sector}</span>`;
+                card.innerHTML = `
+                    <div class="lic-id">ID: ${lic.id}</div>
+                    <div class="lic-title">${lic.titulo}</div>
+                    <div class="lic-meta">
+                        <span class="lic-tag">${lic.institucion}</span>
+                        <span class="lic-tag">${lic.region} (${lic.ciudad})</span>
+                    </div>`;
                 listaContainer.appendChild(card);
             });
+
+            if (datos.length > 0) {
+                seleccionarLicitacion(datos[0], { currentTarget: listaContainer.firstChild });
+            }
         }
 
         function seleccionarLicitacion(lic, event) {
             document.getElementById("detId").innerText = `ID: ${lic.id}`;
             document.getElementById("detTitulo").innerText = lic.titulo;
-            document.getElementById("detSector").innerText = lic.sector;
+            document.getElementById("detInstitucion").innerText = lic.institucion;
+            document.getElementById("detUbicacion").innerText = `${lic.region} - ${lic.ciudad}`;
             document.getElementById("detPresupuesto").innerText = lic.presupuesto;
             document.getElementById("detPlazo").innerText = lic.plazo;
             document.getElementById("detCierre").innerText = lic.cierre;
             document.querySelectorAll(".licitacion-card").forEach(c => c.classList.remove("active"));
-            event.currentTarget.classList.add("active");
-        }
-
-        function filtrarLicitaciones() {
-            renderLista(document.getElementById("searchInput").value);
+            if(event && event.currentTarget) event.currentTarget.classList.add("active");
         }
 
         function descargarArchivo(nombreArchivo) {
