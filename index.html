@@ -45,7 +45,7 @@
         .filters-group input, .filters-group select { width: 100%; padding: 0.6rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 0.9rem; }
         .filters-group input:focus, .filters-group select:focus { outline: none; border-color: var(--accent-gold); }
         
-        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 350px; margin-top: 0.5rem; }
+        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 320px; margin-top: 0.5rem; }
         .licitacion-card { background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; cursor: pointer; transition: all 0.2s; }
         .licitacion-card:hover, .licitacion-card.active { border-color: var(--accent-gold); background-color: rgba(245, 158, 11, 0.05); }
         .lic-id { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 0.25rem; }
@@ -114,39 +114,35 @@
 
             <!-- CUADRO 1: REGIÓN -->
             <div class="filters-group">
-                <label>1. Región de Chile</label>
-                <select id="filtroRegion" onchange="actualizarCiudades(); aplicarFiltros();">
+                <label>1. Región</label>
+                <select id="filtroRegion" onchange="actualizarProvincias(); aplicarFiltros();">
                     <option value="">Todas las regiones</option>
-                    <option value="Arica y Parinacota">Arica y Parinacota</option>
-                    <option value="Tarapaca">Tarapacá</option>
-                    <option value="Antofagasta">Antofagasta</option>
-                    <option value="Atacama">Atacama</option>
-                    <option value="Coquimbo">Coquimbo</option>
-                    <option value="Valparaiso">Valparaíso</option>
                     <option value="Metropolitana">Metropolitana de Santiago</option>
-                    <option value="O'Higgins">O'Higgins</option>
-                    <option value="Maule">Maule</option>
-                    <option value="Nuble">Ñuble</option>
+                    <option value="Valparaiso">Valparaíso</option>
+                    <option value="Antofagasta">Antofagasta</option>
                     <option value="Biobio">Biobío</option>
-                    <option value="La Araucania">La Araucanía</option>
-                    <option value="Los Rios">Los Ríos</option>
-                    <option value="Los Lagos">Los Lagos</option>
-                    <option value="Aysen">Aysén</option>
-                    <option value="Magallanes">Magallanes</option>
                 </select>
             </div>
 
-            <!-- CUADRO 2: CIUDAD -->
+            <!-- CUADRO 2: PROVINCIA -->
             <div class="filters-group">
-                <label>2. Ciudad / Provincia</label>
+                <label>2. Provincia</label>
+                <select id="filtroProvincia" onchange="actualizarCiudades(); aplicarFiltros();">
+                    <option value="">Todas las provincias</option>
+                </select>
+            </div>
+
+            <!-- CUADRO 3: CIUDAD -->
+            <div class="filters-group">
+                <label>3. Ciudad</label>
                 <select id="filtroCiudad" onchange="actualizarComunas(); aplicarFiltros();">
                     <option value="">Todas las ciudades</option>
                 </select>
             </div>
 
-            <!-- CUADRO 3: COMUNA -->
+            <!-- CUADRO 4: COMUNA -->
             <div class="filters-group">
-                <label>3. Comuna</label>
+                <label>4. Comuna</label>
                 <select id="filtroComuna" onchange="aplicarFiltros()">
                     <option value="">Todas las comunas</option>
                 </select>
@@ -199,45 +195,35 @@
     <script>
         const CLAVE_SECRETA = "tactus2026";
 
-        // Base territorial completa por región, ciudad y comuna
-        const territorialData = {
+        // Estructura en cascada estricta: Región -> Provincia -> Ciudad -> Comuna
+        const geoData = {
             "Metropolitana": {
-                ciudades: ["Santiago", "Talagante", "Maipo", "Cordillera", "Chacabuco", "Melipilla", "Chacabuco"],
-                comunas: {
-                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén", "Estación Central"],
-                    "Talagante": ["Padre Hurtado", "Talagante", "El Monte", "Isla de Maipo", "Peñaflor"],
-                    "Maipo": ["San Bernardo", "Buin", "Paine", "Calera de Tango"],
-                    "Cordillera": ["Puente Alto", "Pirque", "San José de Maipo"],
-                    "Chacabuco": ["Colina", "Lampa", "Tiltil"],
-                    "Melipilla": ["Melipilla", "Curacaví", "María Pinto", "San Pedro", "Alhué"]
+                "Talagante": {
+                    "Talagante": ["Padre Hurtado", "Talagante", "El Monte", "Isla de Maipo", "Peñaflor"]
+                },
+                "Santiago": {
+                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén", "Estación Central"]
+                },
+                "Chacabuco": {
+                    "Colina": ["Colina", "Lampa", "Tiltil"]
                 }
             },
             "Valparaiso": {
-                ciudades: ["Valparaíso", "Viña del Mar", "San Antonio", "Quillota", "Los Andes", "San Felipe", "Marga Marga"],
-                comunas: {
-                    "Valparaíso": ["Valparaíso", "Juan Fernández"],
-                    "Viña del Mar": ["Viña del Mar", "Concón", "Quintero", "Puchuncaví"],
-                    "San Antonio": ["San Antonio", "Cartagena", "El Tabo", "El Quisco", "Algarrobo", "Santo Domingo"],
-                    "Quillota": ["Quillota", "La Calera", "Nogales", "Hijuelas", "La Cruz"],
-                    "Los Andes": ["Los Andes", "San Esteban", "Calle Larga", "Rinconada"],
-                    "San Felipe": ["San Felipe", "Putaendo", "Catemu", "Llaillay", "Panquehue"],
-                    "Marga Marga": ["Quilpué", "Villa Alemana", "Limache", "Olmué"]
+                "San Antonio": {
+                    "San Antonio": ["San Antonio", "Cartagena", "El Tabo", "El Quisco", "Algarrobo", "Santo Domingo"]
+                },
+                "Valparaíso": {
+                    "Valparaíso": ["Valparaíso", "Concón", "Quintero", "Puchuncaví"]
                 }
             },
             "Antofagasta": {
-                ciudades: ["Antofagasta", "Calama", "Tocopilla"],
-                comunas: {
-                    "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal"],
-                    "Calama": ["Calama", "Ollagüe", "San Pedro de Atacama"],
-                    "Tocopilla": ["Tocopilla", "María Elena"]
+                "El Loa": {
+                    "Calama": ["Calama", "Ollagüe", "San Pedro de Atacama"]
                 }
             },
             "Biobio": {
-                ciudades: ["Concepción", "Los Ángeles", "Arauco"],
-                comunas: {
-                    "Concepción": ["Concepción", "Talcahuano", "Chiguayante", "San Pedro de la Paz", "Hualpén", "Penco", "Tomé", "Lota", "Coronel", "Hualqui"],
-                    "Los Ángeles": ["Los Ángeles", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Santa Bárbara", "Alto Biobío", "Quilleco", "San Rosendo", "Tucapel"],
-                    "Arauco": ["Arauco", "Cañete", "Curanilahue", "Lebu", "Los Álamos", "Tirúa", "Contulmo"]
+                "Concepción": {
+                    "Concepción": ["Concepción", "Talcahuano", "Chiguayante", "San Pedro de la Paz", "Hualpén"]
                 }
             }
         };
@@ -256,40 +242,62 @@
         }
 
         const licitaciones = [
-            { id: "3824-26-LR26", titulo: "REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO", institucion: "MUNICIPALIDAD", region: "Metropolitana", ciudad: "Talagante", comuna: "Padre Hurtado", presupuesto: "$ 6.994.322.100", plazo: "40 Días", cierre: "23 Nov, 2026" },
-            { id: "2788-53-LE26", titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", institucion: "MOP", region: "Metropolitana", ciudad: "Chacabuco", comuna: "Colina", presupuesto: "UF 145.000", plazo: "540 Días", cierre: "30 Nov, 2026" },
-            { id: "2460-137-LE26", titulo: "Reposición Pavimentos Estructurales y Vías Urbanas", institucion: "MUNICIPALIDAD", region: "Metropolitana", ciudad: "Santiago", comuna: "Providencia", presupuesto: "UF 98.500", plazo: "360 Días", cierre: "15 Dic, 2026" },
-            { id: "3310-89-LP26", titulo: "Optimización de Infraestructura y Muros de Contención Minera", institucion: "MINMINAS", region: "Antofagasta", ciudad: "Calama", comuna: "Calama", presupuesto: "UF 320.000", plazo: "720 Días", cierre: "20 Dic, 2026" },
-            { id: "4120-55-LE26", titulo: "Construcción Centro Cívico y Edificio Consistorial", institucion: "MUNICIPALIDAD", region: "Biobio", ciudad: "Concepción", comuna: "Concepción", presupuesto: "UF 210.000", plazo: "480 Días", cierre: "05 Ene, 2027" }
+            { id: "3824-26-LR26", titulo: "REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO", institucion: "MUNICIPALIDAD", region: "Metropolitana", provincia: "Talagante", ciudad: "Talagante", comuna: "Padre Hurtado", presupuesto: "$ 6.994.322.100", plazo: "40 Días", cierre: "23 Nov, 2026" },
+            { id: "2788-53-LE26", titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", institucion: "MOP", region: "Metropolitana", provincia: "Chacabuco", ciudad: "Colina", comuna: "Colina", presupuesto: "UF 145.000", plazo: "540 Días", cierre: "30 Nov, 2026" },
+            { id: "2460-137-LE26", titulo: "Reposición Pavimentos Estructurales y Vías Urbanas", institucion: "MUNICIPALIDAD", region: "Metropolitana", provincia: "Santiago", ciudad: "Santiago", comuna: "Providencia", presupuesto: "UF 98.500", plazo: "360 Días", cierre: "15 Dic, 2026" },
+            { id: "3310-89-LP26", titulo: "Optimización de Infraestructura y Muros de Contención Minera", institucion: "MINMINAS", region: "Antofagasta", provincia: "El Loa", ciudad: "Calama", comuna: "Calama", presupuesto: "UF 320.000", plazo: "720 Días", cierre: "20 Dic, 2026" },
+            { id: "4120-55-LE26", titulo: "Construcción Centro Cívico y Edificio Consistorial", institucion: "MUNICIPALIDAD", region: "Biobio", provincia: "Concepción", ciudad: "Concepción", comuna: "Concepción", presupuesto: "UF 210.000", plazo: "480 Días", cierre: "05 Ene, 2027" }
         ];
 
+        function actualizarProvincias() {
+            const region = document.getElementById("filtroRegion").value;
+            const provSelect = document.getElementById("filtroProvincia");
+            const ciudadSelect = document.getElementById("filtroCiudad");
+            const comunaSelect = document.getElementById("filtroComuna");
+
+            provSelect.innerHTML = '<option value="">Todas las provincias</option>';
+            ciudadSelect.innerHTML = '<option value="">Todas las ciudades</option>';
+            comunaSelect.innerHTML = '<option value="">Todas las comunas</option>';
+
+            if (region && geoData[region]) {
+                Object.keys(geoData[region]).forEach(prov => {
+                    const opt = document.createElement("option");
+                    opt.value = prov;
+                    opt.textContent = prov;
+                    provSelect.appendChild(opt);
+                });
+            }
+        }
+
         function actualizarCiudades() {
-            const regionSelect = document.getElementById("filtroRegion").value;
+            const region = document.getElementById("filtroRegion").value;
+            const prov = document.getElementById("filtroProvincia").value;
             const ciudadSelect = document.getElementById("filtroCiudad");
             const comunaSelect = document.getElementById("filtroComuna");
 
             ciudadSelect.innerHTML = '<option value="">Todas las ciudades</option>';
             comunaSelect.innerHTML = '<option value="">Todas las comunas</option>';
 
-            if (regionSelect && territorialData[regionSelect]) {
-                territorialData[regionSelect].ciudades.forEach(c => {
+            if (region && prov && geoData[region][prov]) {
+                Object.keys(geoData[region][prov]).forEach(ciu => {
                     const opt = document.createElement("option");
-                    opt.value = c;
-                    opt.textContent = c;
+                    opt.value = ciu;
+                    opt.textContent = ciu;
                     ciudadSelect.appendChild(opt);
                 });
             }
         }
 
         function actualizarComunas() {
-            const regionSelect = document.getElementById("filtroRegion").value;
-            const ciudadSelect = document.getElementById("filtroCiudad").value;
+            const region = document.getElementById("filtroRegion").value;
+            const prov = document.getElementById("filtroProvincia").value;
+            const ciu = document.getElementById("filtroCiudad").value;
             const comunaSelect = document.getElementById("filtroComuna");
 
             comunaSelect.innerHTML = '<option value="">Todas las comunas</option>';
 
-            if (regionSelect && ciudadSelect && territorialData[regionSelect] && territorialData[regionSelect].comunas[ciudadSelect]) {
-                territorialData[regionSelect].comunas[ciudadSelect].forEach(com => {
+            if (region && prov && ciu && geoData[region][prov][ciu]) {
+                geoData[region][prov][ciu].forEach(com => {
                     const opt = document.createElement("option");
                     opt.value = com;
                     opt.textContent = com;
@@ -302,6 +310,7 @@
             const texto = document.getElementById("filtroTexto").value.toLowerCase();
             const inst = document.getElementById("filtroInstitucion").value;
             const region = document.getElementById("filtroRegion").value;
+            const prov = document.getElementById("filtroProvincia").value;
             const ciudad = document.getElementById("filtroCiudad").value;
             const comuna = document.getElementById("filtroComuna").value;
 
@@ -309,9 +318,10 @@
                 const matchTexto = l.titulo.toLowerCase().includes(texto) || l.id.toLowerCase().includes(texto);
                 const matchInst = !inst || l.institucion === inst;
                 const matchRegion = !region || l.region === region;
+                const matchProv = !prov || l.provincia === prov;
                 const matchCiudad = !ciudad || l.ciudad === ciudad;
                 const matchComuna = !comuna || l.comuna === comuna;
-                return matchTexto && matchInst && matchRegion && matchCiudad && matchComuna;
+                return matchTexto && matchInst && matchRegion && matchProv && matchCiudad && matchComuna;
             });
 
             renderLista(filtrados);
@@ -336,7 +346,7 @@
                     <div class="lic-title">${lic.titulo}</div>
                     <div class="lic-meta">
                         <span class="lic-tag">${lic.institucion}</span>
-                        <span class="lic-tag">${lic.ciudad} / ${lic.comuna}</span>
+                        <span class="lic-tag">${lic.provincia} / ${lic.comuna}</span>
                     </div>`;
                 listaContainer.appendChild(card);
             });
@@ -350,7 +360,7 @@
             document.getElementById("detId").innerText = `ID: ${lic.id}`;
             document.getElementById("detTitulo").innerText = lic.titulo;
             document.getElementById("detInstitucion").innerText = lic.institucion;
-            document.getElementById("detUbicacion").innerText = `${lic.region} - ${lic.ciudad} (${lic.comuna})`;
+            document.getElementById("detUbicacion").innerText = `${lic.region} - ${lic.provincia} - ${lic.ciudad} (${lic.comuna})`;
             document.getElementById("detPresupuesto").innerText = lic.presupuesto;
             document.getElementById("detPlazo").innerText = lic.plazo;
             document.getElementById("detCierre").innerText = lic.cierre;
