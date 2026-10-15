@@ -45,7 +45,7 @@
         .filters-group input, .filters-group select { width: 100%; padding: 0.6rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 0.9rem; }
         .filters-group input:focus, .filters-group select:focus { outline: none; border-color: var(--accent-gold); }
         
-        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 300px; margin-top: 0.5rem; }
+        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 280px; margin-top: 0.5rem; }
         .licitacion-card { background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; cursor: pointer; transition: all 0.2s; }
         .licitacion-card:hover, .licitacion-card.active { border-color: var(--accent-gold); background-color: rgba(245, 158, 11, 0.05); }
         .lic-id { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 0.25rem; }
@@ -114,7 +114,7 @@
             <!-- CUADRO 1: REGIÓN -->
             <div class="filters-group">
                 <label>REGIÓN</label>
-                <select id="filtroRegion" onchange="actualizarProvincias(); aplicarFiltros();">
+                <select id="filtroRegion" onchange="cargarProvincias()">
                     <option value="">Seleccione Región...</option>
                     <option value="Metropolitana">Metropolitana de Santiago</option>
                     <option value="Valparaiso">Valparaíso</option>
@@ -126,7 +126,7 @@
             <!-- CUADRO 2: PROVINCIA -->
             <div class="filters-group">
                 <label>PROVINCIA</label>
-                <select id="filtroProvincia" onchange="actualizarCiudades(); aplicarFiltros();">
+                <select id="filtroProvincia" onchange="cargarCiudades()" disabled>
                     <option value="">Seleccione Provincia...</option>
                 </select>
             </div>
@@ -134,7 +134,7 @@
             <!-- CUADRO 3: CIUDAD -->
             <div class="filters-group">
                 <label>CIUDAD</label>
-                <select id="filtroCiudad" onchange="actualizarComunas(); aplicarFiltros();">
+                <select id="filtroCiudad" onchange="cargarComunas()" disabled>
                     <option value="">Seleccione Ciudad...</option>
                 </select>
             </div>
@@ -142,7 +142,7 @@
             <!-- CUADRO 4: COMUNA -->
             <div class="filters-group">
                 <label>COMUNA</label>
-                <select id="filtroComuna" onchange="aplicarFiltros()">
+                <select id="filtroComuna" onchange="aplicarFiltros()" disabled>
                     <option value="">Seleccione Comuna...</option>
                 </select>
             </div>
@@ -157,7 +157,7 @@
                 <h2 id="detTitulo" style="font-size: 1.3rem; margin-bottom: 0.5rem;">REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO</h2>
                 <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
                     <span class="lic-tag" id="detInstitucion">MUNICIPALIDAD</span>
-                    <span class="lic-tag" id="detUbicacion">Metropolitana - Talagante - Padre Hurtado</span>
+                    <span class="lic-tag" id="detUbicacion">Metropolitana - Talagante - Talagante - Padre Hurtado</span>
                 </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -194,14 +194,14 @@
     <script>
         const CLAVE_SECRETA = "tactus2026";
 
-        // Estructura en cascada estricta: Región -> Provincia -> Ciudad -> Comuna
-        const geoCascada = {
+        // Base territorial estructurada estrictamente en cascada: Región -> Provincia -> Ciudad -> Comunas
+        const baseTerritorial = {
             "Metropolitana": {
                 "Talagante": {
                     "Talagante": ["Padre Hurtado", "Talagante", "El Monte", "Isla de Maipo", "Peñaflor"]
                 },
                 "Santiago": {
-                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén"]
+                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén", "Estación Central"]
                 },
                 "Chacabuco": {
                     "Colina": ["Colina", "Lampa", "Tiltil"]
@@ -248,8 +248,8 @@
             { id: "4120-55-LE26", titulo: "Construcción Centro Cívico y Edificio Consistorial", institucion: "MUNICIPALIDAD", region: "Biobio", provincia: "Concepción", ciudad: "Concepción", comuna: "Concepción", presupuesto: "UF 210.000", plazo: "480 Días", cierre: "05 Ene, 2027" }
         ];
 
-        function actualizarProvincias() {
-            const region = document.getElementById("filtroRegion").value;
+        function cargarProvincias() {
+            const reg = document.getElementById("filtroRegion").value;
             const provSelect = document.getElementById("filtroProvincia");
             const ciudadSelect = document.getElementById("filtroCiudad");
             const comunaSelect = document.getElementById("filtroComuna");
@@ -258,18 +258,25 @@
             ciudadSelect.innerHTML = '<option value="">Seleccione Ciudad...</option>';
             comunaSelect.innerHTML = '<option value="">Seleccione Comuna...</option>';
 
-            if (region && geoCascada[region]) {
-                Object.keys(geoCascada[region]).forEach(prov => {
-                    const opt = document.createElement("option");
-                    opt.value = prov;
-                    opt.textContent = prov;
+            ciudadSelect.disabled = true;
+            comunaSelect.disabled = true;
+
+            if (reg && baseTerritorial[reg]) {
+                provSelect.disabled = false;
+                Object.keys(baseTerritorial[reg]).forEach(p => {
+                    let opt = document.createElement("option");
+                    opt.value = p;
+                    opt.textContent = p;
                     provSelect.appendChild(opt);
                 });
+            } else {
+                provSelect.disabled = true;
             }
+            aplicarFiltros();
         }
 
-        function actualizarCiudades() {
-            const region = document.getElementById("filtroRegion").value;
+        function cargarCiudades() {
+            const reg = document.getElementById("filtroRegion").value;
             const prov = document.getElementById("filtroProvincia").value;
             const ciudadSelect = document.getElementById("filtroCiudad");
             const comunaSelect = document.getElementById("filtroComuna");
@@ -277,32 +284,42 @@
             ciudadSelect.innerHTML = '<option value="">Seleccione Ciudad...</option>';
             comunaSelect.innerHTML = '<option value="">Seleccione Comuna...</option>';
 
-            if (region && prov && geoCascada[region][prov]) {
-                Object.keys(geoCascada[region][prov]).forEach(ciu => {
-                    const opt = document.createElement("option");
-                    opt.value = ciu;
-                    opt.textContent = ciu;
+            comunaSelect.disabled = true;
+
+            if (reg && prov && baseTerritorial[reg][prov]) {
+                ciudadSelect.disabled = false;
+                Object.keys(baseTerritorial[reg][prov]).forEach(c => {
+                    let opt = document.createElement("option");
+                    opt.value = c;
+                    opt.textContent = c;
                     ciudadSelect.appendChild(opt);
                 });
+            } else {
+                ciudadSelect.disabled = true;
             }
+            aplicarFiltros();
         }
 
-        function actualizarComunas() {
-            const region = document.getElementById("filtroRegion").value;
+        function cargarComunas() {
+            const reg = document.getElementById("filtroRegion").value;
             const prov = document.getElementById("filtroProvincia").value;
             const ciu = document.getElementById("filtroCiudad").value;
             const comunaSelect = document.getElementById("filtroComuna");
 
             comunaSelect.innerHTML = '<option value="">Seleccione Comuna...</option>';
 
-            if (region && prov && ciu && geoCascada[region][prov][ciu]) {
-                geoCascada[region][prov][ciu].forEach(com => {
-                    const opt = document.createElement("option");
+            if (reg && prov && ciu && baseTerritorial[reg][prov][ciu]) {
+                comunaSelect.disabled = false;
+                baseTerritorial[reg][prov][ciu].forEach(com => {
+                    let opt = document.createElement("option");
                     opt.value = com;
                     opt.textContent = com;
                     comunaSelect.appendChild(opt);
                 });
+            } else {
+                comunaSelect.disabled = true;
             }
+            aplicarFiltros();
         }
 
         function aplicarFiltros() {
