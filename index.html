@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -46,7 +45,7 @@
         .filters-group input, .filters-group select { width: 100%; padding: 0.6rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 0.9rem; }
         .filters-group input:focus, .filters-group select:focus { outline: none; border-color: var(--accent-gold); }
         
-        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 420px; margin-top: 0.5rem; }
+        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 380px; margin-top: 0.5rem; }
         .licitacion-card { background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; cursor: pointer; transition: all 0.2s; }
         .licitacion-card:hover, .licitacion-card.active { border-color: var(--accent-gold); background-color: rgba(245, 158, 11, 0.05); }
         .lic-id { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 0.25rem; }
@@ -92,15 +91,15 @@
         </div>
     </main>
 
-    <main class="portal-container" id="portalContainer">
+    <div class="portal-container" id="portalContainer">
         <aside class="sidebar">
-            <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 0.2rem;">Filtros Nacionales de Chile</h3>
+            <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 0.2rem;">Filtros Territoriales de Chile</h3>
             <div class="filters-group">
                 <label>ID o Código (Ej. 3824-26-LR26)</label>
                 <input type="text" id="filtroTexto" placeholder="Buscar por código o palabra..." oninput="aplicarFiltros()">
             </div>
             <div class="filters-group">
-                <label>Institución / Municipalidad / Organismo</label>
+                <label>Institución / Organismo</label>
                 <select id="filtroInstitucion" onchange="aplicarFiltros()">
                     <option value="">Todas las instituciones y municipalidades</option>
                     <option value="MOP">Ministerio de Obras Públicas (MOP)</option>
@@ -112,7 +111,7 @@
             </div>
             <div class="filters-group">
                 <label>Región de Chile</label>
-                <select id="filtroRegion" onchange="aplicarFiltros()">
+                <select id="filtroRegion" onchange="actualizarCiudades(); aplicarFiltros();">
                     <option value="">Todas las regiones</option>
                     <option value="Arica y Parinacota">Arica y Parinacota</option>
                     <option value="Tarapaca">Tarapacá</option>
@@ -129,12 +128,20 @@
                     <option value="Los Rios">Los Ríos</option>
                     <option value="Los Lagos">Los Lagos</option>
                     <option value="Aysen">Aysén</option>
-                    <option value="Magallanes">Magallanes y de la Antártica Chilena</option>
+                    <option value="Magallanes">Magallanes</option>
                 </select>
             </div>
             <div class="filters-group">
-                <label>Ciudad / Comuna</label>
-                <input type="text" id="filtroCiudad" placeholder="Ej. Padre Hurtado, Santiago..." oninput="aplicarFiltros()">
+                <label>Ciudad / Provincia</label>
+                <select id="filtroCiudad" onchange="actualizarComunas(); aplicarFiltros();">
+                    <option value="">Todas las ciudades</option>
+                </select>
+            </div>
+            <div class="filters-group">
+                <label>Comuna</label>
+                <select id="filtroComuna" onchange="aplicarFiltros()">
+                    <option value="">Todas las comunas</option>
+                </select>
             </div>
             <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);" id="contadorResultados">Mostrando resultados</div>
             <div class="licitacion-list" id="listaLicitaciones"></div>
@@ -174,7 +181,7 @@
                 <button class="btn btn-primary" style="width: auto;" onclick="alert('Generando postulación oficial de Tactus SpA...')">Generar Postulación 🚀</button>
             </div>
         </section>
-    </main>
+    </div>
 
     <footer>
         © 2026 Tactus Comunicaciones Estratégicas SpA. Todos los derechos reservados.
@@ -182,6 +189,48 @@
 
     <script>
         const CLAVE_SECRETA = "tactus2026";
+
+        // Base de datos de ciudades y comunas por región de Chile
+        const territorialData = {
+            "Metropolitana": {
+                ciudades: ["Santiago", "Talagante", "Maipo", "Cordillera", "Chacabuco", "Melipilla"],
+                comunas: {
+                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Puente Alto"],
+                    "Talagante": ["Padre Hurtado", "Talagante", "El Monte", "Isla de Maipo", "Peñaflor"],
+                    "Maipo": ["San Bernardo", "Buin", "Paine", "Calera de Tango"],
+                    "Cordillera": ["Puente Alto", "Pirque", "San José de Maipo"],
+                    "Chacabuco": ["Colina", "Lampa", "Tiltil"],
+                    "Melipilla": ["Melipilla", "Curacaví", "María Pinto", "San Pedro", "Alhué"]
+                }
+            },
+            "Valparaiso": {
+                ciudades: ["Valparaíso", "Viña del Mar", "San Antonio", "Quillota", "Los Andes", "San Felipe"],
+                comunas: {
+                    "Valparaíso": ["Valparaíso", "Juan Fernández"],
+                    "Viña del Mar": ["Viña del Mar", "Concón", "Quintero", "Puchuncaví"],
+                    "San Antonio": ["San Antonio", "Cartagena", "El Tabo", "El Quisco", "Algarrobo", "Santo Domingo"],
+                    "Quillota": ["Quillota", "La Calera", "Nogales", "Hijuelas", "La Cruz"],
+                    "Los Andes": ["Los Andes", "San Esteban", "Calle Larga", "Rinconada"],
+                    "San Felipe": ["San Felipe", "Putaendo", "Catemu", "Llaillay", "Panquehue"]
+                }
+            },
+            "Antofagasta": {
+                ciudades: ["Antofagasta", "Calama", "Tocopilla"],
+                comunas: {
+                    "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal"],
+                    "Calama": ["Calama", "Ollagüe", "San Pedro de Atacama"],
+                    "Tocopilla": ["Tocopilla", "María Elena"]
+                }
+            },
+            "Biobio": {
+                ciudades: ["Concepción", "Los Ángeles", "Arauco"],
+                comunas: {
+                    "Concepción": ["Concepción", "Talcahuano", "Chiguayante", "San Pedro de la Paz", "Hualpén", "Penco", "Tomé"],
+                    "Los Ángeles": ["Los Ángeles", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Santa Bárbara"],
+                    "Arauco": ["Arauco", "Cañete", "Curanilahue", "Lebu", "Los Álamos", "Tirúa"]
+                }
+            }
+        };
 
         function verificarClave() {
             const input = document.getElementById("claveAcceso").value;
@@ -197,25 +246,62 @@
         }
 
         const licitaciones = [
-            { id: "3824-26-LR26", titulo: "REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO", institucion: "MUNICIPALIDAD", region: "Metropolitana", ciudad: "Padre Hurtado", presupuesto: "$ 6.994.322.100", plazo: "40 Días", cierre: "23 Nov, 2026" },
-            { id: "2788-53-LE26", titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", institucion: "MOP", region: "Metropolitana", ciudad: "Colina", presupuesto: "UF 145.000", plazo: "540 Días", cierre: "30 Nov, 2026" },
-            { id: "2460-137-LE26", titulo: "Reposición Pavimentos Estructurales y Vías Urbanas", institucion: "MUNICIPALIDAD", region: "Metropolitana", ciudad: "Providencia", presupuesto: "UF 98.500", plazo: "360 Días", cierre: "15 Dic, 2026" },
-            { id: "3310-89-LP26", titulo: "Optimización de Infraestructura y Muros de Contención Minera", institucion: "MINMINAS", region: "Antofagasta", ciudad: "Calama", presupuesto: "UF 320.000", plazo: "720 Días", cierre: "20 Dic, 2026" },
-            { id: "4120-55-LE26", titulo: "Construcción Centro Cívico y Edificio Consistorial", institucion: "MUNICIPALIDAD", region: "Biobio", ciudad: "Concepción", presupuesto: "UF 210.000", plazo: "480 Días", cierre: "05 Ene, 2027" }
+            { id: "3824-26-LR26", titulo: "REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO", institucion: "MUNICIPALIDAD", region: "Metropolitana", ciudad: "Talagante", comuna: "Padre Hurtado", presupuesto: "$ 6.994.322.100", plazo: "40 Días", cierre: "23 Nov, 2026" },
+            { id: "2788-53-LE26", titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", institucion: "MOP", region: "Metropolitana", ciudad: "Chacabuco", comuna: "Colina", presupuesto: "UF 145.000", plazo: "540 Días", cierre: "30 Nov, 2026" },
+            { id: "2460-137-LE26", titulo: "Reposición Pavimentos Estructurales y Vías Urbanas", institucion: "MUNICIPALIDAD", region: "Metropolitana", ciudad: "Santiago", comuna: "Providencia", presupuesto: "UF 98.500", plazo: "360 Días", cierre: "15 Dic, 2026" },
+            { id: "3310-89-LP26", titulo: "Optimización de Infraestructura y Muros de Contención Minera", institucion: "MINMINAS", region: "Antofagasta", ciudad: "Calama", comuna: "Calama", presupuesto: "UF 320.000", plazo: "720 Días", cierre: "20 Dic, 2026" },
+            { id: "4120-55-LE26", titulo: "Construcción Centro Cívico y Edificio Consistorial", institucion: "MUNICIPALIDAD", region: "Biobio", ciudad: "Concepción", comuna: "Concepción", presupuesto: "UF 210.000", plazo: "480 Días", cierre: "05 Ene, 2027" }
         ];
+
+        function actualizarCiudades() {
+            const regionSelect = document.getElementById("filtroRegion").value;
+            const ciudadSelect = document.getElementById("filtroCiudad");
+            const comunaSelect = document.getElementById("filtroComuna");
+
+            ciudadSelect.innerHTML = '<option value="">Todas las ciudades</option>';
+            comunaSelect.innerHTML = '<option value="">Todas las comunas</option>';
+
+            if (regionSelect && territorialData[regionSelect]) {
+                territorialData[regionSelect].ciudades.forEach(c => {
+                    const opt = document.createElement("option");
+                    opt.value = c;
+                    opt.textContent = c;
+                    ciudadSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function actualizarComunas() {
+            const regionSelect = document.getElementById("filtroRegion").value;
+            const ciudadSelect = document.getElementById("filtroCiudad").value;
+            const comunaSelect = document.getElementById("filtroComuna");
+
+            comunaSelect.innerHTML = '<option value="">Todas las comunas</option>';
+
+            if (regionSelect && ciudadSelect && territorialData[regionSelect] && territorialData[regionSelect].comunas[ciudadSelect]) {
+                territorialData[regionSelect].comunas[ciudadSelect].forEach(com => {
+                    const opt = document.createElement("option");
+                    opt.value = com;
+                    opt.textContent = com;
+                    comunaSelect.appendChild(opt);
+                });
+            }
+        }
 
         function aplicarFiltros() {
             const texto = document.getElementById("filtroTexto").value.toLowerCase();
             const inst = document.getElementById("filtroInstitucion").value;
             const region = document.getElementById("filtroRegion").value;
-            const ciudad = document.getElementById("filtroCiudad").value.toLowerCase();
+            const ciudad = document.getElementById("filtroCiudad").value;
+            const comuna = document.getElementById("filtroComuna").value;
 
             const filtrados = licitaciones.filter(l => {
                 const matchTexto = l.titulo.toLowerCase().includes(texto) || l.id.toLowerCase().includes(texto);
                 const matchInst = !inst || l.institucion === inst;
                 const matchRegion = !region || l.region === region;
-                const matchCiudad = !ciudad || l.ciudad.toLowerCase().includes(ciudad);
-                return matchTexto && matchInst && matchRegion && matchCiudad;
+                const matchCiudad = !ciudad || l.ciudad === ciudad;
+                const matchComuna = !comuna || l.comuna === comuna;
+                return matchTexto && matchInst && matchRegion && matchCiudad && matchComuna;
             });
 
             renderLista(filtrados);
@@ -240,7 +326,7 @@
                     <div class="lic-title">${lic.titulo}</div>
                     <div class="lic-meta">
                         <span class="lic-tag">${lic.institucion}</span>
-                        <span class="lic-tag">${lic.region} (${lic.ciudad})</span>
+                        <span class="lic-tag">${lic.ciudad} / ${lic.comuna}</span>
                     </div>`;
                 listaContainer.appendChild(card);
             });
@@ -254,7 +340,7 @@
             document.getElementById("detId").innerText = `ID: ${lic.id}`;
             document.getElementById("detTitulo").innerText = lic.titulo;
             document.getElementById("detInstitucion").innerText = lic.institucion;
-            document.getElementById("detUbicacion").innerText = `${lic.region} - ${lic.ciudad}`;
+            document.getElementById("detUbicacion").innerText = `${lic.region} - ${lic.ciudad} (${lic.comuna})`;
             document.getElementById("detPresupuesto").innerText = lic.presupuesto;
             document.getElementById("detPlazo").innerText = lic.plazo;
             document.getElementById("detCierre").innerText = lic.cierre;
