@@ -41,11 +41,11 @@
         
         .sidebar { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
         .filters-group { display: flex; flex-direction: column; gap: 0.4rem; }
-        .filters-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .filters-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .filters-group input, .filters-group select { width: 100%; padding: 0.6rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 0.9rem; }
         .filters-group input:focus, .filters-group select:focus { outline: none; border-color: var(--accent-gold); }
         
-        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 320px; margin-top: 0.5rem; }
+        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 300px; margin-top: 0.5rem; }
         .licitacion-card { background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; cursor: pointer; transition: all 0.2s; }
         .licitacion-card:hover, .licitacion-card.active { border-color: var(--accent-gold); background-color: rgba(245, 158, 11, 0.05); }
         .lic-id { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 0.25rem; }
@@ -93,30 +93,29 @@
 
     <div class="portal-container" id="portalContainer">
         <aside class="sidebar">
-            <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 0.2rem;">Filtros Territoriales de Chile</h3>
+            <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 0.2rem;">Filtros Territoriales</h3>
             
             <div class="filters-group">
-                <label>ID o Código (Ej. 3824-26-LR26)</label>
-                <input type="text" id="filtroTexto" placeholder="Buscar por código o palabra..." oninput="aplicarFiltros()">
+                <label>Búsqueda por ID / Texto</label>
+                <input type="text" id="filtroTexto" placeholder="Ej. 3824-26-LR26 o San Ignacio" oninput="aplicarFiltros()">
             </div>
             
             <div class="filters-group">
                 <label>Institución / Organismo</label>
                 <select id="filtroInstitucion" onchange="aplicarFiltros()">
-                    <option value="">Todas las instituciones y municipalidades</option>
+                    <option value="">Todas las instituciones</option>
                     <option value="MOP">Ministerio de Obras Públicas (MOP)</option>
-                    <option value="MUNICIPALIDAD">Municipalidades (Todas)</option>
+                    <option value="MUNICIPALIDAD">Municipalidades</option>
                     <option value="MINMINAS">Ministerio de Minería</option>
                     <option value="VIALIDAD">Dirección de Vialidad</option>
-                    <option value="MINSAL">Ministerio de Salud</option>
                 </select>
             </div>
 
             <!-- CUADRO 1: REGIÓN -->
             <div class="filters-group">
-                <label>1. Región</label>
+                <label>REGIÓN</label>
                 <select id="filtroRegion" onchange="actualizarProvincias(); aplicarFiltros();">
-                    <option value="">Todas las regiones</option>
+                    <option value="">Seleccione Región...</option>
                     <option value="Metropolitana">Metropolitana de Santiago</option>
                     <option value="Valparaiso">Valparaíso</option>
                     <option value="Antofagasta">Antofagasta</option>
@@ -126,25 +125,25 @@
 
             <!-- CUADRO 2: PROVINCIA -->
             <div class="filters-group">
-                <label>2. Provincia</label>
+                <label>PROVINCIA</label>
                 <select id="filtroProvincia" onchange="actualizarCiudades(); aplicarFiltros();">
-                    <option value="">Todas las provincias</option>
+                    <option value="">Seleccione Provincia...</option>
                 </select>
             </div>
 
             <!-- CUADRO 3: CIUDAD -->
             <div class="filters-group">
-                <label>3. Ciudad</label>
+                <label>CIUDAD</label>
                 <select id="filtroCiudad" onchange="actualizarComunas(); aplicarFiltros();">
-                    <option value="">Todas las ciudades</option>
+                    <option value="">Seleccione Ciudad...</option>
                 </select>
             </div>
 
             <!-- CUADRO 4: COMUNA -->
             <div class="filters-group">
-                <label>4. Comuna</label>
+                <label>COMUNA</label>
                 <select id="filtroComuna" onchange="aplicarFiltros()">
-                    <option value="">Todas las comunas</option>
+                    <option value="">Seleccione Comuna...</option>
                 </select>
             </div>
 
@@ -196,13 +195,13 @@
         const CLAVE_SECRETA = "tactus2026";
 
         // Estructura en cascada estricta: Región -> Provincia -> Ciudad -> Comuna
-        const geoData = {
+        const geoCascada = {
             "Metropolitana": {
                 "Talagante": {
                     "Talagante": ["Padre Hurtado", "Talagante", "El Monte", "Isla de Maipo", "Peñaflor"]
                 },
                 "Santiago": {
-                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén", "Estación Central"]
+                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén"]
                 },
                 "Chacabuco": {
                     "Colina": ["Colina", "Lampa", "Tiltil"]
@@ -255,12 +254,12 @@
             const ciudadSelect = document.getElementById("filtroCiudad");
             const comunaSelect = document.getElementById("filtroComuna");
 
-            provSelect.innerHTML = '<option value="">Todas las provincias</option>';
-            ciudadSelect.innerHTML = '<option value="">Todas las ciudades</option>';
-            comunaSelect.innerHTML = '<option value="">Todas las comunas</option>';
+            provSelect.innerHTML = '<option value="">Seleccione Provincia...</option>';
+            ciudadSelect.innerHTML = '<option value="">Seleccione Ciudad...</option>';
+            comunaSelect.innerHTML = '<option value="">Seleccione Comuna...</option>';
 
-            if (region && geoData[region]) {
-                Object.keys(geoData[region]).forEach(prov => {
+            if (region && geoCascada[region]) {
+                Object.keys(geoCascada[region]).forEach(prov => {
                     const opt = document.createElement("option");
                     opt.value = prov;
                     opt.textContent = prov;
@@ -275,11 +274,11 @@
             const ciudadSelect = document.getElementById("filtroCiudad");
             const comunaSelect = document.getElementById("filtroComuna");
 
-            ciudadSelect.innerHTML = '<option value="">Todas las ciudades</option>';
-            comunaSelect.innerHTML = '<option value="">Todas las comunas</option>';
+            ciudadSelect.innerHTML = '<option value="">Seleccione Ciudad...</option>';
+            comunaSelect.innerHTML = '<option value="">Seleccione Comuna...</option>';
 
-            if (region && prov && geoData[region][prov]) {
-                Object.keys(geoData[region][prov]).forEach(ciu => {
+            if (region && prov && geoCascada[region][prov]) {
+                Object.keys(geoCascada[region][prov]).forEach(ciu => {
                     const opt = document.createElement("option");
                     opt.value = ciu;
                     opt.textContent = ciu;
@@ -294,10 +293,10 @@
             const ciu = document.getElementById("filtroCiudad").value;
             const comunaSelect = document.getElementById("filtroComuna");
 
-            comunaSelect.innerHTML = '<option value="">Todas las comunas</option>';
+            comunaSelect.innerHTML = '<option value="">Seleccione Comuna...</option>';
 
-            if (region && prov && ciu && geoData[region][prov][ciu]) {
-                geoData[region][prov][ciu].forEach(com => {
+            if (region && prov && ciu && geoCascada[region][prov][ciu]) {
+                geoCascada[region][prov][ciu].forEach(com => {
                     const opt = document.createElement("option");
                     opt.value = com;
                     opt.textContent = com;
