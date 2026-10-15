@@ -44,6 +44,7 @@
         .filters-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .filters-group input, .filters-group select { width: 100%; padding: 0.6rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 0.9rem; }
         .filters-group input:focus, .filters-group select:focus { outline: none; border-color: var(--accent-gold); }
+        .filters-group select:disabled { opacity: 0.5; cursor: not-allowed; }
         
         .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 280px; margin-top: 0.5rem; }
         .licitacion-card { background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; cursor: pointer; transition: all 0.2s; }
@@ -116,10 +117,6 @@
                 <label>REGIÓN</label>
                 <select id="filtroRegion" onchange="cargarProvincias()">
                     <option value="">Seleccione Región...</option>
-                    <option value="Metropolitana">Metropolitana de Santiago</option>
-                    <option value="Valparaiso">Valparaíso</option>
-                    <option value="Antofagasta">Antofagasta</option>
-                    <option value="Biobio">Biobío</option>
                 </select>
             </div>
 
@@ -153,11 +150,11 @@
 
         <section class="content-panel">
             <div class="section-box">
-                <div class="lic-id" id="detId">ID: 3824-26-LR26</div>
-                <h2 id="detTitulo" style="font-size: 1.3rem; margin-bottom: 0.5rem;">REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO</h2>
+                <div class="lic-id" id="detId">ID: -</div>
+                <h2 id="detTitulo" style="font-size: 1.3rem; margin-bottom: 0.5rem;">Seleccione una licitación</h2>
                 <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                    <span class="lic-tag" id="detInstitucion">MUNICIPALIDAD</span>
-                    <span class="lic-tag" id="detUbicacion">Metropolitana - Talagante - Talagante - Padre Hurtado</span>
+                    <span class="lic-tag" id="detInstitucion">-</span>
+                    <span class="lic-tag" id="detUbicacion">-</span>
                 </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -175,14 +172,14 @@
             <div class="section-box">
                 <h3>📊 Estructura Económica y Plazos</h3>
                 <div class="stats-grid">
-                    <div class="stat-card"><span>Monto / Presupuesto</span><strong id="detPresupuesto">$ 6.994.322.100</strong></div>
-                    <div class="stat-card"><span>Plazo Ejecución</span><strong id="detPlazo">40 Días (Cierre)</strong></div>
-                    <div class="stat-card"><span>Cierre Recepción</span><strong id="detCierre">23 Nov, 2026</strong></div>
+                    <div class="stat-card"><span>Monto / Presupuesto</span><strong id="detPresupuesto">$ -</strong></div>
+                    <div class="stat-card"><span>Plazo Ejecución</span><strong id="detPlazo">-</strong></div>
+                    <div class="stat-card"><span>Cierre Recepción</span><strong id="detCierre">-</strong></div>
                 </div>
             </div>
             <div class="action-bar">
                 <button class="btn btn-secondary" onclick="window.print()">Imprimir Resumen</button>
-                <button class="btn btn-primary" style="width: auto;" onclick="alert('Generando postulación oficial de Tactus SpA...')">Generar Postulación 🚀</button>
+                <button class="btn btn-primary" style="width: auto;" onclick="generarPostulacion()">Generar Postulación 🚀</button>
             </div>
         </section>
     </div>
@@ -194,39 +191,215 @@
     <script>
         const CLAVE_SECRETA = "tactus2026";
 
-        // Base territorial estructurada estrictamente en cascada: Región -> Provincia -> Ciudad -> Comunas
+        // Base territorial completa de Chile - Estructura en cascada
         const baseTerritorial = {
             "Metropolitana": {
                 "Talagante": {
                     "Talagante": ["Padre Hurtado", "Talagante", "El Monte", "Isla de Maipo", "Peñaflor"]
                 },
                 "Santiago": {
-                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén", "Estación Central"]
+                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén", "Estación Central", "La Reina", "Macul"]
                 },
                 "Chacabuco": {
                     "Colina": ["Colina", "Lampa", "Tiltil"]
+                },
+                "Maipo": {
+                    "San Bernardo": ["San Bernardo", "Buin", "Paine", "Calera de Tango"]
+                },
+                "Cordillera": {
+                    "Puente Alto": ["Puente Alto", "Pirque", "San José de Maipo"]
                 }
             },
             "Valparaiso": {
+                "Valparaíso": {
+                    "Valparaíso": ["Valparaíso", "Viña del Mar", "Concón", "Quintero", "Puchuncaví", "Casablanca", "Juan Fernández"]
+                },
                 "San Antonio": {
                     "San Antonio": ["San Antonio", "Cartagena", "El Tabo", "El Quisco", "Algarrobo", "Santo Domingo"]
                 },
-                "Valparaíso": {
-                    "Valparaíso": ["Valparaíso", "Concón", "Quintero", "Puchuncaví"]
+                "Quillota": {
+                    "Quillota": ["Quillota", "La Calera", "Hijuelas", "Nogales", "La Cruz"]
                 }
             },
             "Antofagasta": {
                 "El Loa": {
                     "Calama": ["Calama", "Ollagüe", "San Pedro de Atacama"]
+                },
+                "Antofagasta": {
+                    "Antofagasta": ["Antofagasta", "Mejillones", "Sierra Gorda", "Taltal"]
                 }
             },
             "Biobio": {
                 "Concepción": {
-                    "Concepción": ["Concepción", "Talcahuano", "Chiguayante", "San Pedro de la Paz", "Hualpén"]
+                    "Concepción": ["Concepción", "Talcahuano", "Chiguayante", "San Pedro de la Paz", "Hualpén", "Coronel", "Lota", "Santa Juana"]
+                },
+                "Biobío": {
+                    "Los Ángeles": ["Los Ángeles", "Cabrero", "Laja", "Nacimiento", "San Rosendo", "Santa Bárbara", "Quilaco", "Mulchén"]
+                }
+            },
+            "Arica": {
+                "Arica": {
+                    "Arica": ["Arica", "Camarones"]
+                },
+                "Parinacota": {
+                    "Putre": ["Putre", "General Lagos"]
+                }
+            },
+            "Tarapaca": {
+                "Iquique": {
+                    "Iquique": ["Iquique", "Alto Hospicio"]
+                },
+                "Tamarugal": {
+                    "Pozo Almonte": ["Pozo Almonte", "Camiña", "Colchane", "Huara", "Pica"]
+                }
+            },
+            "Atacama": {
+                "Copiapó": {
+                    "Copiapó": ["Copiapó", "Caldera", "Tierra Amarilla"]
+                },
+                "Huasco": {
+                    "Vallenar": ["Vallenar", "Alto del Carmen", "Freirina", "Huasco"]
+                }
+            },
+            "Coquimbo": {
+                "Elqui": {
+                    "La Serena": ["La Serena", "Coquimbo", "Andacollo", "La Higuera", "Paiguano", "Vicuña"]
+                },
+                "Limarí": {
+                    "Ovalle": ["Ovalle", "Combarbalá", "Monte Patria", "Punitaqui", "Río Hurtado"]
+                }
+            },
+            "O'Higgins": {
+                "Cachapoal": {
+                    "Rancagua": ["Rancagua", "Codegua", "Coinco", "Coltauco", "Doñihue", "Graneros", "La Estrella", "Machalí", "Malloa", "Mostazal", "Olivar", "Peumo", "Pichidegua", "Quinta de Tilcoco", "Rengo", "Requínoa", "San Vicente"]
+                }
+            },
+            "Maule": {
+                "Talca": {
+                    "Talca": ["Talca", "Constitución", "Curepto", "Empedrado", "Maule", "Pelarco", "Pencahue", "Río Claro", "San Clemente", "San Rafael"]
+                }
+            },
+            "Ñuble": {
+                "Diguillín": {
+                    "Chillán": ["Chillán", "Bulnes", "Chillán Viejo", "El Carmen", "Pemuco", "Pinto", "Quillón", "San Ignacio", "Yungay"]
+                }
+            },
+            "Araucania": {
+                "Cautín": {
+                    "Temuco": ["Temuco", "Carahue", "Cholchol", "Cunco", "Curarrehue", "Freire", "Galvarino", "Gorbea", "Lautaro", "Loncoche", "Melipeuco", "Nueva Imperial", "Padre Las Casas", "Perquenco", "Pitrufquén", "Pucón", "Saavedra", "Teodoro Schmidt", "Toltén", "Vilcún", "Villarrica"]
+                }
+            },
+            "LosRios": {
+                "Valdivia": {
+                    "Valdivia": ["Valdivia", "Corral", "Lanco", "Los Lagos", "Máfil", "Mariquina", "Paillaco", "Panguipulli"]
+                }
+            },
+            "LosLagos": {
+                "Llanquihue": {
+                    "Puerto Montt": ["Puerto Montt", "Calbuco", "Cochamó", "Fresia", "Frutillar", "Los Muermos", "Llanquihue", "Maullín", "Puerto Varas"]
+                }
+            },
+            "Aysen": {
+                "Coyhaique": {
+                    "Coyhaique": ["Coyhaique", "Aysén", "Cisnes", "Guaitecas", "Lago Verde", "Río Ibáñez"]
+                }
+            },
+            "Magallanes": {
+                "Magallanes": {
+                    "Punta Arenas": ["Punta Arenas", "Laguna Blanca", "Río Verde", "San Gregorio"]
                 }
             }
         };
 
+        // Base de datos de licitaciones
+        const licitaciones = [
+            { 
+                id: "3824-26-LR26", 
+                titulo: "REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO", 
+                institucion: "MUNICIPALIDAD", 
+                region: "Metropolitana", 
+                provincia: "Talagante", 
+                ciudad: "Talagante", 
+                comuna: "Padre Hurtado", 
+                presupuesto: "$ 6.994.322.100", 
+                plazo: "40 Días", 
+                cierre: "23 Nov, 2026" 
+            },
+            { 
+                id: "2788-53-LE26", 
+                titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", 
+                institucion: "MOP", 
+                region: "Metropolitana", 
+                provincia: "Chacabuco", 
+                ciudad: "Colina", 
+                comuna: "Colina", 
+                presupuesto: "UF 145.000", 
+                plazo: "540 Días", 
+                cierre: "30 Nov, 2026" 
+            },
+            { 
+                id: "2460-137-LE26", 
+                titulo: "Reposición Pavimentos Estructurales y Vías Urbanas", 
+                institucion: "MUNICIPALIDAD", 
+                region: "Metropolitana", 
+                provincia: "Santiago", 
+                ciudad: "Santiago", 
+                comuna: "Providencia", 
+                presupuesto: "UF 98.500", 
+                plazo: "360 Días", 
+                cierre: "15 Dic, 2026" 
+            },
+            { 
+                id: "3310-89-LP26", 
+                titulo: "Optimización de Infraestructura y Muros de Contención Minera", 
+                institucion: "MINMINAS", 
+                region: "Antofagasta", 
+                provincia: "El Loa", 
+                ciudad: "Calama", 
+                comuna: "Calama", 
+                presupuesto: "UF 320.000", 
+                plazo: "720 Días", 
+                cierre: "20 Dic, 2026" 
+            },
+            { 
+                id: "4120-55-LE26", 
+                titulo: "Construcción Centro Cívico y Edificio Consistorial", 
+                institucion: "MUNICIPALIDAD", 
+                region: "Biobio", 
+                provincia: "Concepción", 
+                ciudad: "Concepción", 
+                comuna: "Concepción", 
+                presupuesto: "UF 210.000", 
+                plazo: "480 Días", 
+                cierre: "05 Ene, 2027" 
+            },
+            {
+                id: "5501-12-LR26",
+                titulo: "Mejoramiento de Infraestructura Portuaria Valparaíso",
+                institucion: "MOP",
+                region: "Valparaiso",
+                provincia: "Valparaíso",
+                ciudad: "Valparaíso",
+                comuna: "Valparaíso",
+                presupuesto: "UF 280.000",
+                plazo: "600 Días",
+                cierre: "10 Ene, 2027"
+            },
+            {
+                id: "6234-78-LE26",
+                titulo: "Construcción Planta de Tratamiento de Aguas",
+                institucion: "VIALIDAD",
+                region: "Antofagasta",
+                provincia: "Antofagasta",
+                ciudad: "Antofagasta",
+                comuna: "Antofagasta",
+                presupuesto: "UF 195.000",
+                plazo: "450 Días",
+                cierre: "28 Nov, 2026"
+            }
+        ];
+
+        // Inicializar el portal
         function verificarClave() {
             const input = document.getElementById("claveAcceso").value;
             const error = document.getElementById("errorMsg");
@@ -234,20 +407,34 @@
                 document.getElementById("demoScreen").style.display = "none";
                 document.getElementById("portalContainer").style.display = "grid";
                 document.getElementById("headerStatus").innerText = "Sesión Autorizada · Tactus SpA";
+                inicializarRegiones();
                 renderLista(licitaciones);
             } else {
                 error.style.display = "block";
+                setTimeout(() => { error.style.display = "none"; }, 3000);
             }
         }
 
-        const licitaciones = [
-            { id: "3824-26-LR26", titulo: "REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO", institucion: "MUNICIPALIDAD", region: "Metropolitana", provincia: "Talagante", ciudad: "Talagante", comuna: "Padre Hurtado", presupuesto: "$ 6.994.322.100", plazo: "40 Días", cierre: "23 Nov, 2026" },
-            { id: "2788-53-LE26", titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", institucion: "MOP", region: "Metropolitana", provincia: "Chacabuco", ciudad: "Colina", comuna: "Colina", presupuesto: "UF 145.000", plazo: "540 Días", cierre: "30 Nov, 2026" },
-            { id: "2460-137-LE26", titulo: "Reposición Pavimentos Estructurales y Vías Urbanas", institucion: "MUNICIPALIDAD", region: "Metropolitana", provincia: "Santiago", ciudad: "Santiago", comuna: "Providencia", presupuesto: "UF 98.500", plazo: "360 Días", cierre: "15 Dic, 2026" },
-            { id: "3310-89-LP26", titulo: "Optimización de Infraestructura y Muros de Contención Minera", institucion: "MINMINAS", region: "Antofagasta", provincia: "El Loa", ciudad: "Calama", comuna: "Calama", presupuesto: "UF 320.000", plazo: "720 Días", cierre: "20 Dic, 2026" },
-            { id: "4120-55-LE26", titulo: "Construcción Centro Cívico y Edificio Consistorial", institucion: "MUNICIPALIDAD", region: "Biobio", provincia: "Concepción", ciudad: "Concepción", comuna: "Concepción", presupuesto: "UF 210.000", plazo: "480 Días", cierre: "05 Ene, 2027" }
-        ];
+        // Permitir acceso con Enter
+        document.getElementById("claveAcceso")?.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                verificarClave();
+            }
+        });
 
+        // Cargar regiones en el dropdown
+        function inicializarRegiones() {
+            const regionSelect = document.getElementById("filtroRegion");
+            regionSelect.innerHTML = '<option value="">Seleccione Región...</option>';
+            Object.keys(baseTerritorial).sort().forEach(region => {
+                let opt = document.createElement("option");
+                opt.value = region;
+                opt.textContent = region;
+                regionSelect.appendChild(opt);
+            });
+        }
+
+        // Cargar provincias según región seleccionada
         function cargarProvincias() {
             const reg = document.getElementById("filtroRegion").value;
             const provSelect = document.getElementById("filtroProvincia");
@@ -263,7 +450,7 @@
 
             if (reg && baseTerritorial[reg]) {
                 provSelect.disabled = false;
-                Object.keys(baseTerritorial[reg]).forEach(p => {
+                Object.keys(baseTerritorial[reg]).sort().forEach(p => {
                     let opt = document.createElement("option");
                     opt.value = p;
                     opt.textContent = p;
@@ -275,6 +462,7 @@
             aplicarFiltros();
         }
 
+        // Cargar ciudades según provincia seleccionada
         function cargarCiudades() {
             const reg = document.getElementById("filtroRegion").value;
             const prov = document.getElementById("filtroProvincia").value;
@@ -288,7 +476,7 @@
 
             if (reg && prov && baseTerritorial[reg][prov]) {
                 ciudadSelect.disabled = false;
-                Object.keys(baseTerritorial[reg][prov]).forEach(c => {
+                Object.keys(baseTerritorial[reg][prov]).sort().forEach(c => {
                     let opt = document.createElement("option");
                     opt.value = c;
                     opt.textContent = c;
@@ -300,6 +488,7 @@
             aplicarFiltros();
         }
 
+        // Cargar comunas según ciudad seleccionada
         function cargarComunas() {
             const reg = document.getElementById("filtroRegion").value;
             const prov = document.getElementById("filtroProvincia").value;
@@ -310,7 +499,7 @@
 
             if (reg && prov && ciu && baseTerritorial[reg][prov][ciu]) {
                 comunaSelect.disabled = false;
-                baseTerritorial[reg][prov][ciu].forEach(com => {
+                baseTerritorial[reg][prov][ciu].sort().forEach(com => {
                     let opt = document.createElement("option");
                     opt.value = com;
                     opt.textContent = com;
@@ -322,6 +511,7 @@
             aplicarFiltros();
         }
 
+        // Aplicar filtros a la lista de licitaciones
         function aplicarFiltros() {
             const texto = document.getElementById("filtroTexto").value.toLowerCase();
             const inst = document.getElementById("filtroInstitucion").value;
@@ -343,13 +533,21 @@
             renderLista(filtrados);
         }
 
+        // Renderizar lista de licitaciones filtradas
         function renderLista(datos) {
             const listaContainer = document.getElementById("listaLicitaciones");
             listaContainer.innerHTML = "";
-            document.getElementById("contadorResultados").innerText = `${datos.length} licitaciones encontradas`;
+            document.getElementById("contadorResultados").innerText = `${datos.length} licitación${datos.length !== 1 ? 'es' : ''} encontrada${datos.length !== 1 ? 's' : ''}`;
 
             if (datos.length === 0) {
-                listaContainer.innerHTML = "<div style='padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;'>No hay resultados para estos filtros</div>";
+                listaContainer.innerHTML = "<div style='padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;'>No hay resultados para estos filtros</div>";
+                document.getElementById("detId").innerText = "ID: -";
+                document.getElementById("detTitulo").innerText = "Seleccione una licitación";
+                document.getElementById("detInstitucion").innerText = "-";
+                document.getElementById("detUbicacion").innerText = "-";
+                document.getElementById("detPresupuesto").innerText = "$ -";
+                document.getElementById("detPlazo").innerText = "-";
+                document.getElementById("detCierre").innerText = "-";
                 return;
             }
 
@@ -367,11 +565,13 @@
                 listaContainer.appendChild(card);
             });
 
+            // Seleccionar automáticamente la primera licitación
             if (datos.length > 0) {
                 seleccionarLicitacion(datos[0], { currentTarget: listaContainer.firstChild });
             }
         }
 
+        // Seleccionar licitación y mostrar detalles
         function seleccionarLicitacion(lic, event) {
             document.getElementById("detId").innerText = `ID: ${lic.id}`;
             document.getElementById("detTitulo").innerText = lic.titulo;
@@ -385,6 +585,7 @@
             if(event && event.currentTarget) event.currentTarget.classList.add("active");
         }
 
+        // Descargar archivo simulado
         function descargarArchivo(nombreArchivo) {
             const elementoFicticio = document.createElement('a');
             elementoFicticio.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent('Documento oficial confidencial de Tactus SpA: ' + nombreArchivo);
@@ -393,6 +594,25 @@
             elementoFicticio.click();
             document.body.removeChild(elementoFicticio);
         }
+
+        // Generar postulación
+        function generarPostulacion() {
+            const idLicitacion = document.getElementById("detId").innerText;
+            if (idLicitacion === "ID: -") {
+                alert("Primero debe seleccionar una licitación");
+                return;
+            }
+            alert(`Generando postulación oficial de Tactus SpA para ${idLicitacion}...\n\nEn un sistema real, esto generaría la documentación oficial y la enviaría a Mercado Público.`);
+        }
+
+        // Permitir cerrar sesión con tecla ESC
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape" && document.getElementById("portalContainer").style.display === "grid") {
+                if (confirm("¿Desea cerrar la sesión?")) {
+                    location.reload();
+                }
+            }
+        });
     </script>
 </body>
 </html>
