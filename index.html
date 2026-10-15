@@ -116,7 +116,7 @@
             <div class="filters-group">
                 <label>1. Región de Chile</label>
                 <select id="filtroRegion" onchange="actualizarCiudades(); aplicarFiltros();">
-                    <option value="">Seleccione Región...</option>
+                    <option value="">Todas las regiones</option>
                     <option value="Arica y Parinacota">Arica y Parinacota</option>
                     <option value="Tarapaca">Tarapacá</option>
                     <option value="Antofagasta">Antofagasta</option>
@@ -136,11 +136,11 @@
                 </select>
             </div>
 
-            <!-- CUADRO 2: CIUDAD / PROVINCIA -->
+            <!-- CUADRO 2: CIUDAD -->
             <div class="filters-group">
                 <label>2. Ciudad / Provincia</label>
                 <select id="filtroCiudad" onchange="actualizarComunas(); aplicarFiltros();">
-                    <option value="">Seleccione Ciudad...</option>
+                    <option value="">Todas las ciudades</option>
                 </select>
             </div>
 
@@ -148,7 +148,7 @@
             <div class="filters-group">
                 <label>3. Comuna</label>
                 <select id="filtroComuna" onchange="aplicarFiltros()">
-                    <option value="">Seleccione Comuna...</option>
+                    <option value="">Todas las comunas</option>
                 </select>
             </div>
 
@@ -199,10 +199,10 @@
     <script>
         const CLAVE_SECRETA = "tactus2026";
 
-        // Estructura completa de regiones, ciudades y comunas de Chile
+        // Base territorial completa por región, ciudad y comuna
         const territorialData = {
             "Metropolitana": {
-                ciudades: ["Santiago", "Talagante", "Maipo", "Cordillera", "Chacabuco", "Melipilla"],
+                ciudades: ["Santiago", "Talagante", "Maipo", "Cordillera", "Chacabuco", "Melipilla", "Chacabuco"],
                 comunas: {
                     "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén", "Estación Central"],
                     "Talagante": ["Padre Hurtado", "Talagante", "El Monte", "Isla de Maipo", "Peñaflor"],
@@ -233,7 +233,7 @@
                 }
             },
             "Biobio": {
-                ciudades: ["Concepción", "Los Ángeles", "Arauco", "Biobío"],
+                ciudades: ["Concepción", "Los Ángeles", "Arauco"],
                 comunas: {
                     "Concepción": ["Concepción", "Talcahuano", "Chiguayante", "San Pedro de la Paz", "Hualpén", "Penco", "Tomé", "Lota", "Coronel", "Hualqui"],
                     "Los Ángeles": ["Los Ángeles", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Santa Bárbara", "Alto Biobío", "Quilleco", "San Rosendo", "Tucapel"],
