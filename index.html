@@ -45,7 +45,7 @@
         .filters-group input, .filters-group select { width: 100%; padding: 0.6rem; background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-main); font-size: 0.9rem; }
         .filters-group input:focus, .filters-group select:focus { outline: none; border-color: var(--accent-gold); }
         
-        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 380px; margin-top: 0.5rem; }
+        .licitacion-list { display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; max-height: 350px; margin-top: 0.5rem; }
         .licitacion-card { background-color: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 6px; padding: 1rem; cursor: pointer; transition: all 0.2s; }
         .licitacion-card:hover, .licitacion-card.active { border-color: var(--accent-gold); background-color: rgba(245, 158, 11, 0.05); }
         .lic-id { font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 0.25rem; }
@@ -94,10 +94,12 @@
     <div class="portal-container" id="portalContainer">
         <aside class="sidebar">
             <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 0.2rem;">Filtros Territoriales de Chile</h3>
+            
             <div class="filters-group">
                 <label>ID o Código (Ej. 3824-26-LR26)</label>
                 <input type="text" id="filtroTexto" placeholder="Buscar por código o palabra..." oninput="aplicarFiltros()">
             </div>
+            
             <div class="filters-group">
                 <label>Institución / Organismo</label>
                 <select id="filtroInstitucion" onchange="aplicarFiltros()">
@@ -109,10 +111,12 @@
                     <option value="MINSAL">Ministerio de Salud</option>
                 </select>
             </div>
+
+            <!-- CUADRO 1: REGIÓN -->
             <div class="filters-group">
-                <label>Región de Chile</label>
+                <label>1. Región de Chile</label>
                 <select id="filtroRegion" onchange="actualizarCiudades(); aplicarFiltros();">
-                    <option value="">Todas las regiones</option>
+                    <option value="">Seleccione Región...</option>
                     <option value="Arica y Parinacota">Arica y Parinacota</option>
                     <option value="Tarapaca">Tarapacá</option>
                     <option value="Antofagasta">Antofagasta</option>
@@ -131,18 +135,23 @@
                     <option value="Magallanes">Magallanes</option>
                 </select>
             </div>
+
+            <!-- CUADRO 2: CIUDAD / PROVINCIA -->
             <div class="filters-group">
-                <label>Ciudad / Provincia</label>
+                <label>2. Ciudad / Provincia</label>
                 <select id="filtroCiudad" onchange="actualizarComunas(); aplicarFiltros();">
-                    <option value="">Todas las ciudades</option>
+                    <option value="">Seleccione Ciudad...</option>
                 </select>
             </div>
+
+            <!-- CUADRO 3: COMUNA -->
             <div class="filters-group">
-                <label>Comuna</label>
+                <label>3. Comuna</label>
                 <select id="filtroComuna" onchange="aplicarFiltros()">
-                    <option value="">Todas las comunas</option>
+                    <option value="">Seleccione Comuna...</option>
                 </select>
             </div>
+
             <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-muted);" id="contadorResultados">Mostrando resultados</div>
             <div class="licitacion-list" id="listaLicitaciones"></div>
         </aside>
@@ -153,7 +162,7 @@
                 <h2 id="detTitulo" style="font-size: 1.3rem; margin-bottom: 0.5rem;">REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO</h2>
                 <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
                     <span class="lic-tag" id="detInstitucion">MUNICIPALIDAD</span>
-                    <span class="lic-tag" id="detUbicacion">Metropolitana - Padre Hurtado</span>
+                    <span class="lic-tag" id="detUbicacion">Metropolitana - Talagante - Padre Hurtado</span>
                 </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -190,12 +199,12 @@
     <script>
         const CLAVE_SECRETA = "tactus2026";
 
-        // Base de datos de ciudades y comunas por región de Chile
+        // Estructura completa de regiones, ciudades y comunas de Chile
         const territorialData = {
             "Metropolitana": {
                 ciudades: ["Santiago", "Talagante", "Maipo", "Cordillera", "Chacabuco", "Melipilla"],
                 comunas: {
-                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Puente Alto"],
+                    "Santiago": ["Santiago", "Providencia", "Las Condes", "Ñuñoa", "Maipú", "La Florida", "Peñalolén", "Estación Central"],
                     "Talagante": ["Padre Hurtado", "Talagante", "El Monte", "Isla de Maipo", "Peñaflor"],
                     "Maipo": ["San Bernardo", "Buin", "Paine", "Calera de Tango"],
                     "Cordillera": ["Puente Alto", "Pirque", "San José de Maipo"],
@@ -204,14 +213,15 @@
                 }
             },
             "Valparaiso": {
-                ciudades: ["Valparaíso", "Viña del Mar", "San Antonio", "Quillota", "Los Andes", "San Felipe"],
+                ciudades: ["Valparaíso", "Viña del Mar", "San Antonio", "Quillota", "Los Andes", "San Felipe", "Marga Marga"],
                 comunas: {
                     "Valparaíso": ["Valparaíso", "Juan Fernández"],
                     "Viña del Mar": ["Viña del Mar", "Concón", "Quintero", "Puchuncaví"],
                     "San Antonio": ["San Antonio", "Cartagena", "El Tabo", "El Quisco", "Algarrobo", "Santo Domingo"],
                     "Quillota": ["Quillota", "La Calera", "Nogales", "Hijuelas", "La Cruz"],
                     "Los Andes": ["Los Andes", "San Esteban", "Calle Larga", "Rinconada"],
-                    "San Felipe": ["San Felipe", "Putaendo", "Catemu", "Llaillay", "Panquehue"]
+                    "San Felipe": ["San Felipe", "Putaendo", "Catemu", "Llaillay", "Panquehue"],
+                    "Marga Marga": ["Quilpué", "Villa Alemana", "Limache", "Olmué"]
                 }
             },
             "Antofagasta": {
@@ -223,11 +233,11 @@
                 }
             },
             "Biobio": {
-                ciudades: ["Concepción", "Los Ángeles", "Arauco"],
+                ciudades: ["Concepción", "Los Ángeles", "Arauco", "Biobío"],
                 comunas: {
-                    "Concepción": ["Concepción", "Talcahuano", "Chiguayante", "San Pedro de la Paz", "Hualpén", "Penco", "Tomé"],
-                    "Los Ángeles": ["Los Ángeles", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Santa Bárbara"],
-                    "Arauco": ["Arauco", "Cañete", "Curanilahue", "Lebu", "Los Álamos", "Tirúa"]
+                    "Concepción": ["Concepción", "Talcahuano", "Chiguayante", "San Pedro de la Paz", "Hualpén", "Penco", "Tomé", "Lota", "Coronel", "Hualqui"],
+                    "Los Ángeles": ["Los Ángeles", "Cabrero", "Laja", "Mulchén", "Nacimiento", "Negrete", "Santa Bárbara", "Alto Biobío", "Quilleco", "San Rosendo", "Tucapel"],
+                    "Arauco": ["Arauco", "Cañete", "Curanilahue", "Lebu", "Los Álamos", "Tirúa", "Contulmo"]
                 }
             }
         };
