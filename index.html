@@ -92,7 +92,7 @@
         </div>
     </main>
 
-    <div class="portal-container" id="portalContainer">
+    <main class="portal-container" id="portalContainer">
         <aside class="sidebar">
             <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 0.2rem;">Filtros Nacionales de Chile</h3>
             <div class="filters-group">
@@ -114,22 +114,22 @@
                 <label>Región de Chile</label>
                 <select id="filtroRegion" onchange="aplicarFiltros()">
                     <option value="">Todas las regiones</option>
-                    <option value="Arica y Parinacota">XV Región de Arica y Parinacota</option>
-                    <option value="Tarapaca">I Región de Tarapacá</option>
-                    <option value="Antofagasta">II Región de Antofagasta</option>
-                    <option value="Atacama">III Región de Atacama</option>
-                    <option value="Coquimbo">IV Región de Coquimbo</option>
-                    <option value="Valparaiso">V Región de Valparaíso</option>
-                    <option value="Metropolitana">RM Región Metropolitana de Santiago</option>
-                    <option value="O'Higgins">VI Región de O'Higgins</option>
-                    <option value="Maule">VII Región del Maule</option>
-                    <option value="Nuble">XVI Región de Ñuble</option>
-                    <option value="Biobio">VIII Región del Biobío</option>
-                    <option value="La Araucania">IX Región de La Araucanía</option>
-                    <option value="Los Rios">XIV Región de Los Ríos</option>
-                    <option value="Los Lagos">X Región de Los Lagos</option>
-                    <option value="Aysen">XI Región de Aysén</option>
-                    <option value="Magallanes">XII Región de Magallanes</option>
+                    <option value="Arica y Parinacota">Arica y Parinacota</option>
+                    <option value="Tarapaca">Tarapacá</option>
+                    <option value="Antofagasta">Antofagasta</option>
+                    <option value="Atacama">Atacama</option>
+                    <option value="Coquimbo">Coquimbo</option>
+                    <option value="Valparaiso">Valparaíso</option>
+                    <option value="Metropolitana">Metropolitana de Santiago</option>
+                    <option value="O'Higgins">O'Higgins</option>
+                    <option value="Maule">Maule</option>
+                    <option value="Nuble">Ñuble</option>
+                    <option value="Biobio">Biobío</option>
+                    <option value="La Araucania">La Araucanía</option>
+                    <option value="Los Rios">Los Ríos</option>
+                    <option value="Los Lagos">Los Lagos</option>
+                    <option value="Aysen">Aysén</option>
+                    <option value="Magallanes">Magallanes y de la Antártica Chilena</option>
                 </select>
             </div>
             <div class="filters-group">
@@ -146,7 +146,7 @@
                 <h2 id="detTitulo" style="font-size: 1.3rem; margin-bottom: 0.5rem;">REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO</h2>
                 <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
                     <span class="lic-tag" id="detInstitucion">MUNICIPALIDAD</span>
-                    <span class="lic-tag" id="detUbicacion">Región Metropolitana - Padre Hurtado</span>
+                    <span class="lic-tag" id="detUbicacion">Metropolitana - Padre Hurtado</span>
                 </div>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -174,7 +174,7 @@
                 <button class="btn btn-primary" style="width: auto;" onclick="alert('Generando postulación oficial de Tactus SpA...')">Generar Postulación 🚀</button>
             </div>
         </section>
-    </div>
+    </main>
 
     <footer>
         © 2026 Tactus Comunicaciones Estratégicas SpA. Todos los derechos reservados.
@@ -196,7 +196,6 @@
             }
         }
 
-        // Base de licitaciones unificada con cobertura nacional
         const licitaciones = [
             { id: "3824-26-LR26", titulo: "REPOSICION CALLE SAN IGNACIO COMUNA DE PADRE HURTADO", institucion: "MUNICIPALIDAD", region: "Metropolitana", ciudad: "Padre Hurtado", presupuesto: "$ 6.994.322.100", plazo: "40 Días", cierre: "23 Nov, 2026" },
             { id: "2788-53-LE26", titulo: "Construcción de Tranques de Acumulación y Redes Hídricas", institucion: "MOP", region: "Metropolitana", ciudad: "Colina", presupuesto: "UF 145.000", plazo: "540 Días", cierre: "30 Nov, 2026" },
